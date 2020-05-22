@@ -294,6 +294,7 @@ exports.createNodesForContentType = ({
   defaultLocale,
   locales,
   space,
+  contentfulJsonFile,
   useNameForId,
   richTextOptions,
 }) => {
@@ -548,6 +549,20 @@ exports.createNodesForContentType = ({
         }
       })
 
+      const contentfulJson = getContentfulJson(contentfulJsonFile)
+
+      if (contentfulJson) {
+        const jsonFields = contentfulJson.getContentTypeFields(
+          contentTypeItemId
+        )
+
+        Object.keys(jsonFields).forEach(field => {
+          if (!entryItemFields.hasOwnProperty(field.id)) {
+            entryItemFields[field.id] = null
+          }
+        })
+      }
+
       entryNode = { ...entryItemFields, ...entryNode, node_locale: locale.code }
 
       // Get content digest of node.
@@ -634,4 +649,21 @@ exports.createAssetNodes = ({
   })
 
   return createNodePromises
+}
+
+function getContentfulJson(contentfulJsonFile) {
+  if (contentfulJsonFile && contentfulJsonFile.length) {
+    const json = require(contentfulJsonFile)
+
+    return {
+      getContentType: id => json.contentTypes.find(ct => ct.sys.id === id),
+      getContentTypeFields: id => this.getContentType(id).fields,
+      getContentTypeField: (id, fieldId) =>
+        this.getContentTypeFields.find(f => f.id === fieldId),
+      contentTypeHasField: (id, fieldId) =>
+        !!this.getContentTypeField(id, fieldId),
+    }
+  }
+
+  return null
 }

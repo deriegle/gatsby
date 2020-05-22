@@ -236,6 +236,7 @@ exports.sourceNodes = async (
         defaultLocale,
         locales,
         space,
+        contentfulJsonFile: pluginConfig.get(`contentfulJsonFile`),
         useNameForId: pluginConfig.get(`useNameForId`),
         richTextOptions: pluginConfig.get(`richText`),
       })
